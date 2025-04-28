@@ -1,0 +1,211 @@
+*templates\index.html*
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skin Cancer Detection Dashboard - Knet</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        header {
+            background-image: url('{{ url_for("static", filename="microscope_background.jpeg") }}');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            height: 400px;
+            color: white;
+            padding: 80px 20px;
+            text-shadow: 0 3px 6px rgba(0, 0, 0, 0.6);
+            border-radius: 0 0 20px 20px;
+        }
+
+        h1 {
+            font-size: 50px;
+            margin: 0;
+        }
+
+        p.subtitle {
+            font-size: 22px;
+            margin-top: 15px;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: -30px;
+            padding: 20px;
+        }
+
+        .upload-section {
+            background-color: #007bff;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.15);
+            width: 60%;
+            margin-bottom: 20px;
+            color: white;
+            text-align: center;
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .upload-section:hover {
+            transform: scale(1.05);
+            box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        label {
+            font-weight: bold;
+            font-size: 20px;
+        }
+
+        input[type="file"] {
+            margin: 10px 0;
+            padding: 8px;
+            border-radius: 5px;
+            border: none;
+        }
+
+        button {
+            padding: 12px 18px;
+            margin: 10px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .upload-btn {
+            background-color: white;
+            color: #007bff;
+            border: 2px solid white;
+        }
+
+        .predict-btn {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            width: 80%;
+            margin-top: 20px;
+        }
+
+        .prediction-section {
+            background-image: url('{{ url_for("static", filename="image.jpeg") }}');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            padding: 40px;
+            border-radius: 20px;
+        }
+
+        .card {
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .result-image {
+            max-width: 100%;
+            border-radius: 10px;
+            border: 1px solid #ddd;
+        }
+
+        footer {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #333;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Welcome to Knet</h1>
+        <p class="subtitle">Your AI-Powered Skin Cancer Detection Dashboard</p>
+    </header>
+
+    <div class="container">
+        <div class="upload-section">
+            <form id="upload-form" method="post" enctype="multipart/form-data">
+                <label for="file">Upload a Skin Lesion Image:</label><br><br>
+                <input type="file" name="file" id="file" accept="image/*" required><br><br>
+                <button type="submit" name="action" value="upload" class="upload-btn">Upload</button>
+                <button type="submit" name="action" value="predict" class="predict-btn">Predict</button>
+            </form>
+        </div>
+
+        {% if prediction %}
+        <div class="dashboard prediction-section">
+            <div class="card">
+                <h2>Prediction Result</h2>
+                <p><strong>Predicted Disease:</strong> {{ prediction }} ({{ confidence|round(2) }}% confidence)</p>
+            </div>
+
+            <div class="card">
+                <h2>Uploaded Image</h2>
+                <img src="{{ image_url or url_for('static', filename='placeholder_image.jpg') }}" alt="Uploaded Image" class="result-image">
+            </div>
+
+            <div class="card">
+                <h2>Confidence Scores</h2>
+                <img src="data:image/png;base64,{{ plot_url }}" alt="Confidence Scores" class="result-image">
+            </div>
+
+            <div class="card">
+                <h2>Prevention & Care Recommendations</h2>
+                <div class="recommendation">
+                    {% if prediction == "benign" %}
+                        <p><strong>This is a benign lesion.</strong></p>
+                        <ul>
+                            <li>Apply sunscreen (SPF 30+) daily.</li>
+                            <li>Monitor the lesion for any changes.</li>
+                            <li>Maintain a healthy diet rich in antioxidants.</li>
+                            <li>Hydrate well and keep the skin moisturized.</li>
+                        </ul>
+                    {% elif prediction == "malignant" %}
+                        <p><strong class="high-risk">Warning: Possible Malignant Lesion.</strong></p>
+                        <ul>
+                            <li>Consult a dermatologist <strong>immediately</strong>.</li>
+                            <li>Avoid excessive sun exposure and use protective clothing.</li>
+                            <li>Check for any new moles or changes in existing ones.</li>
+                            <li>Consider getting a biopsy for further analysis.</li>
+                        </ul>
+                    {% else %}
+                        <p><strong>No signs of disease detected.</strong></p>
+                        <ul>
+                            <li>Continue regular skin check-ups.</li>
+                            <li>Maintain sun protection habits.</li>
+                            <li>Stay hydrated and follow a healthy skincare routine.</li>
+                        </ul>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <footer>
+        <p>© 2025 Knet. All rights reserved. Empowering health through AI.</p>
+    </footer>
+
+</body>
+</html>
