@@ -1,0 +1,7 @@
+project_folder/
+   ├── static/
+   │    ├── style.css
+   │    └── microscope_background.jpg  # Image for background
+   ├── templates/
+   │    └── index.html
+   └── app.py
